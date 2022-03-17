@@ -11,10 +11,13 @@ import android.os.CountDownTimer;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GameView extends View {
 
     private Sprite playerBird;
-    private Sprite enemyBird;
+    private List<Sprite> enemyBird = new ArrayList<>();
 
 
     private int viewWidth;
@@ -50,7 +53,7 @@ public class GameView extends View {
         h = b.getHeight()/3;
         firstFrame = new Rect(4*w, 0, 5*w, h);
 
-        enemyBird = new Sprite(2000, 250, -300, 0, firstFrame, b);
+        Sprite bird = new Sprite(2000, 250, -300, 0, firstFrame, b);
 
         for (int i = 0; i < 3; i++) {
             for (int j = 4; j >= 0; j--) {
@@ -63,9 +66,10 @@ public class GameView extends View {
                     continue;
                 }
 
-                enemyBird.addFrame(new Rect(j*w, i*h, j*w+w, i*w+w));
+                bird.addFrame(new Rect(j*w, i*h, j*w+w, i*w+w));
             }
         }
+        enemyBird.add(bird);
 
 
         Timer t = new Timer();
@@ -86,7 +90,9 @@ public class GameView extends View {
         super.onDraw(canvas);
         canvas.drawARGB(250, 127, 199, 255);
         playerBird.draw(canvas);
-        enemyBird.draw(canvas);
+        for (Sprite bird : enemyBird) {
+            bird.draw(canvas);
+        }
 
         Paint p = new Paint();
         p.setAntiAlias(true);
@@ -97,7 +103,6 @@ public class GameView extends View {
 
     protected void update () {
         playerBird.update(timerInterval);
-        enemyBird.update(timerInterval);
 
         if (playerBird.getY() + playerBird.getFrameHeight() > viewHeight) {
             playerBird.setY(viewHeight - playerBird.getFrameHeight());
@@ -110,14 +115,17 @@ public class GameView extends View {
             points--;
         }
 
-        if (enemyBird.getX() < - enemyBird.getFrameWidth()) {
-            teleportEnemy();
-            points +=10;
-        }
+        for (Sprite bird : enemyBird) {
+            bird.update(timerInterval);
+            if (bird.getX() < -bird.getFrameWidth()) {
+                teleportEnemy(bird);
+                points += 10;
+            }
 
-        if (enemyBird.intersect(playerBird)) {
-            teleportEnemy ();
-            points -= 40;
+            if (bird.intersect(playerBird)) {
+                teleportEnemy(bird);
+                points -= 40;
+            }
         }
 
 
@@ -144,9 +152,9 @@ public class GameView extends View {
     }
 
 
-    private void teleportEnemy () {
-        enemyBird.setX(viewWidth + Math.random() * 500);
-        enemyBird.setY(Math.random() * (viewHeight - enemyBird.getFrameHeight()));
+    private void teleportEnemy (Sprite bird) {
+        bird.setX(viewWidth + Math.random() * 500);
+        bird.setY(Math.random() * (viewHeight - bird.getFrameHeight()));
     }
 
     class Timer extends CountDownTimer {
