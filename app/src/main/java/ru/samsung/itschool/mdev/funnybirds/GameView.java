@@ -55,6 +55,15 @@ public class GameView extends View {
 
         Sprite bird = new Sprite(2000, 250, -300, 0, firstFrame, b);
 
+        addFramesToSprite(w, h, bird);
+        enemyBird.add(bird);
+
+
+        Timer t = new Timer();
+        t.start();
+    }
+
+    private void addFramesToSprite(int w, int h, Sprite bird) {
         for (int i = 0; i < 3; i++) {
             for (int j = 4; j >= 0; j--) {
 
@@ -66,14 +75,9 @@ public class GameView extends View {
                     continue;
                 }
 
-                bird.addFrame(new Rect(j*w, i*h, j*w+w, i*w+w));
+                bird.addFrame(new Rect(j* w, i* h, j* w + w, i* w + w));
             }
         }
-        enemyBird.add(bird);
-
-
-        Timer t = new Timer();
-        t.start();
     }
 
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
@@ -134,6 +138,16 @@ public class GameView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+
+        Bitmap b = BitmapFactory.decodeResource(getResources(), R.drawable.enemy);
+        int w = b.getWidth()/5;
+        int h = b.getHeight()/3;
+        Rect firstFrame = new Rect(4*w, 0, 5*w, h);
+
+        Sprite bird = new Sprite(event.getX(), event.getY(), -300, 0, firstFrame, b);
+
+        addFramesToSprite(w, h, bird);
+        enemyBird.add(bird);
 
         int eventAction = event.getAction();
         if (eventAction == MotionEvent.ACTION_DOWN)  {
